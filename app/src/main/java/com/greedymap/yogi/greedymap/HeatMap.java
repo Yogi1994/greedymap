@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
+import com.greedymap.yogi.mmutils.LocationFile;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +31,7 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
 
-
+    private LocationFile locationFile = new LocationFile();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +46,9 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
         mMap = googleMap;
 
         // Add a marker in Sydney, Australia, and move the camera.
-        LatLng sydney = new LatLng(-34, 151);
+//        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         addHeatMap();
     }
 
@@ -70,19 +71,19 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
     }
 
     private ArrayList<LatLng> readItems(int resource) throws JSONException {
-        ArrayList<LatLng> list = new ArrayList<LatLng>();
-        InputStream inputStream = getResources().openRawResource(resource);
-        String json = new Scanner(inputStream).useDelimiter("\\A").next();
-        JSONArray array = new JSONArray(json);
-        for (int i = 0; i < array.length(); i++) {
-            JSONObject object = array.getJSONObject(i);
-            double lat = object.getDouble("lat");
-            double lng = object.getDouble("lng");
-//            for(int j = 0; j <1000; j++){
-                list.add(new LatLng(lat + 0.01 , lng + 0.01));
-//            }
 
-        }
+//        locationFile.getLongiTudeLatitude(getApplicationContext(), 0,1);
+        ArrayList<LatLng> list = locationFile.getLongiTudeLatitude(getApplicationContext(), 1,4);
+//        InputStream inputStream = getResources().openRawResource(resource);
+//        String json = new Scanner(inputStream).useDelimiter("\\A").next();
+//        JSONArray array = new JSONArray(json);
+//        for (int i = 0; i < array.length(); i++) {
+//            JSONObject object = array.getJSONObject(i);
+//            double lat = object.getDouble("lat");
+//            double lng = object.getDouble("lng");
+//            list.add(new LatLng(lat + 0.01 , lng + 0.01));
+//
+//        }
         return list;
     }
 

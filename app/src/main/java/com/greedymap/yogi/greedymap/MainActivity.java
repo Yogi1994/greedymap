@@ -36,9 +36,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LocationFile l = new LocationFile();
-        l.readFile(getApplication());
-        MMDB mylocator = new MMDB(getApplicationContext());
+//        LocationFile inputFile = new LocationFile();
+//        inputFile.readFile(getApplication(),0,20);
+//        MMDB mylocator = new MMDB(getApplicationContext());
+
+
 
 
     }

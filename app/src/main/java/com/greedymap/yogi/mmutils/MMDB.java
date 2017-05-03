@@ -3,6 +3,7 @@ package com.greedymap.yogi.mmutils;
 import android.content.Context;
 import android.content.res.AssetManager;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.maxmind.geoip2.model.CityResponse;
@@ -37,7 +38,6 @@ public class MMDB {
                         "raw", context.getPackageName()));
         File database = new File(context.getCacheDir(), "geolite2city.mmdb");
 
-
         try {
 
             OutputStream output = new FileOutputStream(database);
@@ -71,42 +71,23 @@ public class MMDB {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public LatLng getLocation(String Ip) {
         InetAddress ipAddress;
+        Location location = null;
         try {
-            ipAddress = InetAddress.getByName("49.33.194.3");
-
+            ipAddress = InetAddress.getByName(Ip);
             CityResponse response = reader.city(ipAddress);
-            Country country = response.getCountry();
-            System.out.println(country.getIsoCode());            // 'US'
-            System.out.println(country.getName());               // 'United States'
-            System.out.println(country.getNames().get("zh-CN")); // '美国'
+            location = response.getLocation();
 
-
-            City city = response.getCity();
-            System.out.println(city.getName()); // 'Minneapolis'
-
-            Postal postal = response.getPostal();
-            System.out.println(postal.getCode()); // '55455'
-
-            Location location = response.getLocation();
-            System.out.println(location.getLatitude());  // 44.9733
-            System.out.println(location.getLongitude()); // -93.2323
-//            IspResponse response = reader.isp(ipAddress);
-
-//            System.out.println(response.getAutonomousSystemNumber());       // 217
-//            System.out.println(response.getAutonomousSystemOrganization()); // 'University of Minnesota'
-//            System.out.println(response.getIsp());                          // 'University of Minnesota'
-//            System.out.println(response.getOrganization());                 // 'University of Minnesota'
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (GeoIp2Exception e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (NullPointerException e ){
-            e.printStackTrace();
         }
-
-
+        return new LatLng(location.getLatitude(), location.getLongitude());
     }
 }

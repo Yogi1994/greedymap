@@ -1,8 +1,12 @@
 package com.greedymap.yogi.greedymap;
 
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,8 +34,11 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
+    SeekBar seekBar1;
+    private LocationFile locationFile = null;
 
-    private LocationFile locationFile = new LocationFile();
+    List<LatLng> list = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +46,44 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        locationFile = new LocationFile(getApplicationContext());
+        final int[] progressr = {0};
+        seekBar1 = (SeekBar) findViewById(R.id.seekBar);
+        seekBar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            TextView t = (TextView) findViewById(R.id.minutes);
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+//                Toast.makeText(getApplicationContext(), String.valueOf(progressr[0]),Toast.LENGTH_LONG).show();
+                int start = progressr[0] -1;
+                if(start < 0) {
+                    start = 0;
+                }
+                t.setText(start + "-" + progressr[0] + " minute range");
+//                addHeatMap(start,progressr[0]);
+                new Task1().execute(start,progressr[0]);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
+                // TODO Auto-generated method stub
+                progressr[0] = progress;
+                int start = progressr[0] -1;
+                if(start < 0) {
+                    start = 0;
+                }
+                t.setText(start + "-" + progressr[0] + " minute range");
+//                t1.setTextSize(progress);
+//                Toast.makeText(getApplicationContext(), String.valueOf(progress),Toast.LENGTH_LONG).show();
+
+            }
+        });
 
     }
     @Override
@@ -49,19 +94,25 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-        addHeatMap();
+//        addHeatMap(0,1);
+        new Task1().execute(0,1);
     }
 
-    private void addHeatMap() {
-        List<LatLng> list = null;
+
+
+
+    private void addHeatMap(int start, int end) {
+
 
         // Get the data: latitude/longitude positions of police stations.
-        try {
-            list = readItems(R.raw.police_stations);
-        } catch (JSONException e) {
-            Toast.makeText(this, "Problem reading list of locations.", Toast.LENGTH_LONG).show();
-        }
 
+        list = readItems( start,  end);
+
+
+
+    }
+
+    private void addToMap(){
         // Create a heat map tile provider, passing it the latlngs of the police stations.
         mProvider = new HeatmapTileProvider.Builder()
                 .data(list)
@@ -70,22 +121,41 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
         mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
 
-    private ArrayList<LatLng> readItems(int resource) throws JSONException {
+    private ArrayList<LatLng> readItems(int start, int end)  {
 
-//        locationFile.getLongiTudeLatitude(getApplicationContext(), 0,1);
-        ArrayList<LatLng> list = locationFile.getLongiTudeLatitude(getApplicationContext(), 1,4);
-//        InputStream inputStream = getResources().openRawResource(resource);
-//        String json = new Scanner(inputStream).useDelimiter("\\A").next();
-//        JSONArray array = new JSONArray(json);
-//        for (int i = 0; i < array.length(); i++) {
-//            JSONObject object = array.getJSONObject(i);
-//            double lat = object.getDouble("lat");
-//            double lng = object.getDouble("lng");
-//            list.add(new LatLng(lat + 0.01 , lng + 0.01));
-//
-//        }
+        ArrayList<LatLng> list = locationFile.getLongiTudeLatitude(start,  end);
+
         return list;
     }
 
+    class Task1 extends AsyncTask<Integer , Void, String> {
 
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            Log.d("started it -> ", "->>start");
+            Toast.makeText(getApplicationContext(), "Loading started...",Toast.LENGTH_LONG).show();
+        }
+        @Override
+        protected String doInBackground(Integer... arg0)
+        {
+            //Record method
+            addHeatMap(arg0[0],arg0[1]);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result)
+        {
+            super.onPostExecute(result);
+            Log.d("started it -> ", "->>finfish");
+            Toast.makeText(getApplicationContext(), "Done",Toast.LENGTH_LONG).show();
+//            addToMap();
+        }
+    }
 }
+
+
+

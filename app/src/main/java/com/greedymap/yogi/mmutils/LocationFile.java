@@ -24,19 +24,36 @@ import java.util.Map;
  * Created by yogi on 3/5/17.
  */
 
+
+/**
+ * Disaster :o
+ *
+ *  * 05-05 00:58:52.418 9256-9256/com.greedymap.yogi.greedymap D/started it ->: ->>start
+ * 05-05 00:58:52.438 9256-12394/com.greedymap.yogi.greedymap D/Location file: started
+ * 05-05 00:59:14.721 9256-12394/com.greedymap.yogi.greedymap D/Location file: end0
+ * 05-05 00:59:14.722 9256-9256/com.greedymap.yogi.greedymap D/started it ->: ->>finfish
+ */
 public class LocationFile {
     List<IPAndTIme> ipTimeList = new ArrayList<>();
     ArrayList<LatLng> list = null;
+    static MMDB mmdbObj = null;
+    static BufferedReader reader = null;
+    static Context context;
+    public LocationFile(Context context) {
+        this.context = context;
+        mmdbObj = new MMDB(context);
 
+    }
 //    BufferedReader[] readerArr = new BufferedReader[60];
 
-    private void readFile(Context context, int start , int end) {
+    private void readFile( int start , int end) {
 //        System.out.print("ok started");
         Log.d("Location file", "started");
-        BufferedReader reader = null;
+
+//        mmdbObj.getLocationNew("49.33.6.143");
 
         IPAndTIme iPandTime = new IPAndTIme();
-        MMDB mmdbObj = new MMDB(context);
+
         Date startDate = null;
         try {
             reader = new BufferedReader(
@@ -49,6 +66,8 @@ public class LocationFile {
             String ip ;
             Date prevDate = null;
             int lines = 0 ;
+            LatLng longlat = null;
+
             while ((mLine = reader.readLine()) != null) {
 
                 //process line
@@ -59,18 +78,21 @@ public class LocationFile {
                 if(counterstart == 0) {
                     startDate = currDate;
                 }
-                if(prevDate == null || prevDate.compareTo(currDate) < 0) {
+                if(prevDate == null || (currDate.getTime()- prevDate.getTime())>=60000) {
+                    prevDate = currDate;
 //                    Log.d("Location File", " -->" + counterstart);
                     counterstart++;
                 }
-                if(counterstart>=start && counterstart< end){
-                    lines++;
+                if(counterstart>start && counterstart<= end){
+
                     ip = ipTimeStringArr[0];
-
-
-                    list.add(mmdbObj.getLocation(ip));
-                    prevDate = currDate;
-
+                    longlat = mmdbObj.getLocationNew(ip);
+                    if(longlat != null) {
+                        list.add(longlat);
+                        lines++;
+                    }
+                }else if(lines > 1 ){
+                    break;
                 }
             }
             Log.d("Location file", "end" + lines);
@@ -78,20 +100,12 @@ public class LocationFile {
             //log the exception
         } catch (ParseException e) {
             e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    //log the exception
-                }
-            }
         }
     }
 
-    public ArrayList<LatLng> getLongiTudeLatitude(Context context, int start , int end) {
+    public ArrayList<LatLng> getLongiTudeLatitude( int start , int end) {
         list = new ArrayList<>();
-        readFile(context, start, end);
+        readFile( start, end);
         return list;
     }
 }

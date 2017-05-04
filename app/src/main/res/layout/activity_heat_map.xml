@@ -11,20 +11,30 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <EditText
-            android:layout_width="200dp"
 
+
+        <SeekBar
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/etSearch"/>
+            android:max="60"
+            android:progress="0"
+            android:id="@+id/seekBar" />
+
+        <TextView
+            android:text="0-1 minute"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/minutes" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="search"
-            android:id="@+id/btnSearch"
+            android:text="play"
+            android:id="@+id/btnPlay"
             android:layout_gravity="end"
             style="?android:attr/buttonStyleSmall"
-            android:onClick="onSearch" />
+             />
 
     </LinearLayout>
 

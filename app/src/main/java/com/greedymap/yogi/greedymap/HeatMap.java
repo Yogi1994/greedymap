@@ -5,6 +5,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,16 +30,22 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private HeatmapTileProvider mProvider;
-    private TileOverlay mOverlay;
+    private TileOverlay mOverlay = null;
     SeekBar seekBar1;
     private LocationFile locationFile = null;
 
     List<LatLng> list = null;
+
+    Timer timer = null;
+
+    int minutesForPlay = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +56,7 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
         locationFile = new LocationFile(getApplicationContext());
         final int[] progressr = {0};
+        timer = new Timer();
         seekBar1 = (SeekBar) findViewById(R.id.seekBar);
         seekBar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             TextView t = (TextView) findViewById(R.id.minutes);
@@ -55,14 +64,20 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // TODO Auto-generated method stub
-//                Toast.makeText(getApplicationContext(), String.valueOf(progressr[0]),Toast.LENGTH_LONG).show();
-                int start = progressr[0] -1;
-                if(start < 0) {
-                    start = 0;
+//
+                if(minutesForPlay != 0){
+                    Toast.makeText(getApplicationContext(), "Please wait while we finish the other task.",Toast.LENGTH_LONG).show();
+                    return ;
                 }
-                t.setText(start + "-" + progressr[0] + " minute range");
+                int start = 0;
+                int end = 1;
+                if(progressr[0] != 0) {
+                    start = progressr[0]-1;
+                    end = progressr[0];
+                }
+                t.setText(start + "-" + end + " minute range");
 //                addHeatMap(start,progressr[0]);
-                new Task1().execute(start,progressr[0]);
+                new Task1().execute(start,end);
             }
 
             @Override
@@ -78,12 +93,28 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
                 if(start < 0) {
                     start = 0;
                 }
+                if (progress < 1) {
+                    seekBar.setProgress(1);
+                }
                 t.setText(start + "-" + progressr[0] + " minute range");
-//                t1.setTextSize(progress);
-//                Toast.makeText(getApplicationContext(), String.valueOf(progress),Toast.LENGTH_LONG).show();
-
             }
         });
+
+        Button playBtn = (Button) findViewById(R.id.btnPlay);
+        playBtn.setOnClickListener(new Button.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                if(minutesForPlay > 0){
+                    Toast.makeText(getApplicationContext(), "Please wait while we finish the other task.",Toast.LENGTH_LONG).show();
+                    return ;
+                }
+                minutesForPlay = 1;
+                seekBar1.setProgress(1);
+                new Task1().execute(0,1);
+            }
+        });
+
 
     }
     @Override
@@ -113,6 +144,13 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
     }
 
     private void addToMap(){
+        if(list == null || list.size() == 0 ) {
+            Toast.makeText(getApplicationContext(), "Done: No relevant data",Toast.LENGTH_LONG).show();
+        }
+        if(mOverlay != null){
+            mOverlay.remove();
+        }
+
         // Create a heat map tile provider, passing it the latlngs of the police stations.
         mProvider = new HeatmapTileProvider.Builder()
                 .data(list)
@@ -128,6 +166,10 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
         return list;
     }
 
+    private void loopTask() {
+        new Task1().execute(minutesForPlay-1, minutesForPlay);
+    }
+
     class Task1 extends AsyncTask<Integer , Void, String> {
 
         @Override
@@ -135,13 +177,15 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
         {
             super.onPreExecute();
             Log.d("started it -> ", "->>start");
-            Toast.makeText(getApplicationContext(), "Loading started...",Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "Loading started...",Toast.LENGTH_LONG).show();
         }
         @Override
         protected String doInBackground(Integer... arg0)
         {
             //Record method
+            Log.d("started it -> ", "->>" + arg0[0] +" " +arg0[1]);
             addHeatMap(arg0[0],arg0[1]);
+
 
             return null;
         }
@@ -151,8 +195,24 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
         {
             super.onPostExecute(result);
             Log.d("started it -> ", "->>finfish");
-            Toast.makeText(getApplicationContext(), "Done",Toast.LENGTH_LONG).show();
-//            addToMap();
+//            Toast.makeText(getApplicationContext(), "Done",Toast.LENGTH_LONG).show();
+            addToMap();
+
+            if(minutesForPlay < 60 && minutesForPlay != 0) {
+                minutesForPlay++;
+                seekBar1.setProgress(minutesForPlay);
+                new Timer().schedule(
+                        new java.util.TimerTask() {
+                            @Override
+                            public void run() {
+                                // your code here
+                                loopTask();
+
+                            }
+                        },
+                        3000
+                );
+            }
         }
     }
 }

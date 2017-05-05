@@ -26,16 +26,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/minutes" />
-
+        <LinearLayout
+            android:layout_weight="4"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="1">
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="125dp"
             android:layout_height="wrap_content"
             android:text="play"
             android:id="@+id/btnPlay"
             android:layout_gravity="end"
             style="?android:attr/buttonStyleSmall"
-             />
+            android:layout_weight="0.85" />
 
+        <Button
+            android:text="Button"
+            android:layout_width="203dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/stopBtn" />
+    </LinearLayout>
     </LinearLayout>
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"

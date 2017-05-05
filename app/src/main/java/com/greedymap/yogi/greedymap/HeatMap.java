@@ -115,6 +115,16 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
             }
         });
 
+        Button stopBtn = (Button) findViewById(R.id.stopBtn);
+        stopBtn.setOnClickListener(new Button.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                minutesForPlay = 0;
+                seekBar1.setProgress(1);
+            }
+        });
+
 
     }
     @Override
@@ -167,7 +177,13 @@ public class HeatMap extends FragmentActivity implements OnMapReadyCallback {
     }
 
     private void loopTask() {
-        new Task1().execute(minutesForPlay-1, minutesForPlay);
+        int start = minutesForPlay -1;
+        int end = minutesForPlay;
+        if(start< 0){
+            start=0;
+            end=1;
+        }
+        new Task1().execute(start,end);
     }
 
     class Task1 extends AsyncTask<Integer , Void, String> {

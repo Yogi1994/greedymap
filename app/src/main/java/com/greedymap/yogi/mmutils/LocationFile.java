@@ -133,19 +133,19 @@ public class LocationFile {
             }
             Log.d("Location File", "skipBytes");
         }else {
-            long skipBytes = 0;
-            for(int i = 0 ; i < start; i++){
-                if(isLoaded[i] == loadingStatus.LOADED){
-                    Log.d("Location File", ""+i);
-                    skipBytes = ipAndTImeList[i];
-                }
-            }
-            Log.d("Location File", ""+skipBytes);
-            try {
-                curr_reader.skip(skipBytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            long skipBytes = 0;
+//            for(int i = 0 ; i < start; i++){
+//                if(isLoaded[i] == loadingStatus.LOADED){
+//                    Log.d("Location File", ""+i);
+//                    skipBytes = ipAndTImeList[i];
+//                }
+//            }
+//            Log.d("Location File", ""+skipBytes);
+//            try {
+//                curr_reader.skip(skipBytes);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
 
 
@@ -195,7 +195,7 @@ public class LocationFile {
                 if(currDate.getMinutes() == start){
 //                    listIpTime.add(ipAndTIme_curr);
                     if(lines == 0) {
-                        ipAndTImeList[currDate.getMinutes()] = curr_length-mLine.length() ;
+                        ipAndTImeList[currDate.getMinutes()] = curr_length-mLine.length()+1 ;
 //                        readerArray[start] = new BufferedReader(curr_reader);
 //                        int long  = curr_reader.
                         Log.d("Location File", " -->" + mLine);
